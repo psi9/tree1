@@ -1,14 +1,27 @@
 ﻿using System;
-
+using System.CommandLine;
+using System.CommandLine.Invocation;
 
 namespace tree1
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            string folder = "C:\\Users\\user\\Documents\\test";
-            Tree.PrintTree(folder, 3);
+            var cmd = new RootCommand {
+                new Option<int>(new[] { "-d", "--depth" }, "Specify the depth to look into"),
+                new Option(new[] { "-s", "--size" }, "Show size"),
+                new Option(new[] { "-h", "--human-readable"}, "Show size in human readable format"),
+                new Option<string> ("--sort", "Sorting: size, creation date, last change date, name"),
+                new Option("-r", "Reverse order")
+            };
+            cmd.Handler = CommandHandler.Create<IConsole, bool, bool, bool, string, int>(Handle);
+            return cmd.Invoke(args);
+        }
+        static void Handle(IConsole console, bool size, bool humanReadable, bool reverse, string sort = "name", int depth = int.MaxValue)
+        {
+            string folder = "C:\\Users\\user\\Documents\\my games";
+            Tree.PrintTree(folder, depth, size, humanReadable, reverse, sort);
         }
     }
 }
