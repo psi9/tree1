@@ -7,8 +7,8 @@ namespace tree1
     {
         static void Main(string[] args)
         {
-            string folder = "C:\\1111";
-            Tree.PrintTree(folder, 1);
+            string folder = "C:\\Users\\user\\Documents\\test";
+            Tree.PrintTree(folder, 3);
         }
     }
 }
