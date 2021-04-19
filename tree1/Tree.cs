@@ -8,14 +8,14 @@ namespace tree1
     class Tree
     {
         private int MaxDepth { get; set; }
-        private bool ShowSize { get; set; }
+        private bool Size { get; set; }
         private bool HumanReadable { get; set; }
         private bool Reverse { get; set; }
         private string Sorting { get; set; }
         public Tree(int maxDepth, bool size, bool humanReadable, bool reverse, string sorting)
         {
             MaxDepth = maxDepth;
-            ShowSize = size;
+            Size = size;
             HumanReadable = humanReadable;
             Reverse = reverse;
             Sorting = sorting;
@@ -26,7 +26,7 @@ namespace tree1
             {
                 return;
             }
-            IOrderedEnumerable<FileSystemInfo> entries = getFolderContent(folder);
+            IOrderedEnumerable<FileSystemInfo> entries = GetFolderContent(folder);
             foreach (FileSystemInfo entry in entries)
             {
                 if (!IsDirectory(entry))
@@ -58,7 +58,7 @@ namespace tree1
                 FileInfo fileInfo = new FileInfo(entry.FullName);
                 Console.WriteLine("{0}├───{1} ({2})", indent, entry.Name, ShowHumanReadable(fileInfo.Length));
             }
-            else if ((this.ShowSize) && (!IsDirectory(entry)))
+            else if ((this.Size) && (!IsDirectory(entry)))
             {
                 FileInfo fileInfo = new FileInfo(entry.FullName);
                 Console.WriteLine("{0}├───{1} ({2})", indent, entry.Name, fileInfo.Length);
@@ -70,22 +70,22 @@ namespace tree1
         }
         private void PrintLastEntry(FileSystemInfo entry, string indent)
         {
-            if (this.HumanReadable)
+            if ((this.HumanReadable) && (!IsDirectory(entry)))
             {
                 FileInfo fileInfo = new FileInfo(entry.FullName);
                 Console.WriteLine("{0}└───{1} ({2})", indent, entry.Name, ShowHumanReadable(fileInfo.Length));
             }
-            else if (this.ShowSize)
+            else if ((this.Size) && (!IsDirectory(entry)))
             {
                 FileInfo fileInfo = new FileInfo(entry.FullName);
-                Console.WriteLine("{0}└───{1} ({2} B)", indent, entry.Name, fileInfo.Length);
+                Console.WriteLine("{0}└───{1} ({2})", indent, entry.Name, fileInfo.Length);
             }
             else
             {
                 Console.WriteLine("{0}└───{1}", indent, entry.Name);
             }
         }
-        private IOrderedEnumerable<FileSystemInfo> getFolderContent(string folder)
+        private IOrderedEnumerable<FileSystemInfo> GetFolderContent(string folder)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folder);
             FileSystemInfo[] entries = directoryInfo.GetFileSystemInfos();
@@ -94,11 +94,11 @@ namespace tree1
                 switch (this.Sorting)
                 {
                     case "name":
-                        return entries.OrderBy(x => x.Name);
+                        return entries.OrderBy(entry => entry.Name);
                     case "creation":
-                        return entries.OrderBy(x => x.CreationTime);
+                        return entries.OrderBy(entry => entry.CreationTime);
                     case "change":
-                        return entries.OrderBy(x => x.LastWriteTime);
+                        return entries.OrderBy(entry => entry.LastWriteTime);
                 }
             }
             else
@@ -106,11 +106,11 @@ namespace tree1
                 switch (this.Sorting)
                 {
                     case "name":
-                        return entries.OrderByDescending(x => x.Name);
+                        return entries.OrderByDescending(entry => entry.Name);
                     case "creation":
-                        return entries.OrderByDescending(x => x.CreationTime);
+                        return entries.OrderByDescending(entry => entry.CreationTime);
                     case "change":
-                        return entries.OrderByDescending(x => x.LastWriteTime);
+                        return entries.OrderByDescending(entry => entry.LastWriteTime);
                 }
             }
             return null;
@@ -130,7 +130,7 @@ namespace tree1
             }
             return String.Format("{0:0.##} {1}", fileSize, sizes[order]);
         }
-        public static bool IsDirectory(FileSystemInfo entry)
+        private bool IsDirectory(FileSystemInfo entry)
         {
             if (entry.Attributes == FileAttributes.Directory)
             {
