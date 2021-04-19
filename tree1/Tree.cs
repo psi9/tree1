@@ -4,77 +4,94 @@ using System.Linq;
 
 namespace tree1
 {
+
     class Tree
     {
-        public static void PrintTree(string folder, int maxDepth, bool size, bool humanReadable, bool reverse, string sort, string indent = "", int depth = 0)
+        private int MaxDepth { get; set; }
+        private bool ShowSize { get; set; }
+        private bool HumanReadable { get; set; }
+        private bool Reverse { get; set; }
+        private string Sorting { get; set; }
+        public Tree(int maxDepth, bool size, bool humanReadable, bool reverse, string sorting)
         {
-            if (maxDepth <= depth)
+            MaxDepth = maxDepth;
+            ShowSize = size;
+            HumanReadable = humanReadable;
+            Reverse = reverse;
+            Sorting = sorting;
+        }
+        public void PrintTree(string folder, string indent = "", int depth = 0)
+        {
+            if (this.MaxDepth <= depth)
             {
                 return;
             }
-            IOrderedEnumerable<FileSystemInfo> entries = getFolderContent(folder, sort, reverse);
+            IOrderedEnumerable<FileSystemInfo> entries = getFolderContent(folder);
             foreach (FileSystemInfo entry in entries)
             {
-                if (entry.Attributes != FileAttributes.Directory)
+                if (!IsDirectory(entry))
                 {
                     if (entry != entries.Last())
-                    {
-                        if (size)
-                        {
-                            FileInfo fileInfo = new FileInfo(entry.FullName);
-                            Console.WriteLine("{0}├───{1} ({2})", indent, entry.Name, fileInfo.Length);
-                        }
-                        else if (humanReadable)
-                        {
-                            FileInfo fileInfo = new FileInfo(entry.FullName);
-                            Console.WriteLine("{0}├───{1} ({2})", indent, entry.Name, HumanReadable(fileInfo.Length));
-                        }
-                        else
-                        {
-                            Console.WriteLine("{0}├───{1}", indent, entry.Name);
-                        }
-                    }
-
+                        PrintEntry(entry, indent);
                     else
-                    {
-                        if (size)
-                        {
-                            FileInfo fileInfo = new FileInfo(entry.FullName);
-                            Console.WriteLine("{0}└───{1} ({2} B)", indent, entry.Name, fileInfo.Length);
-                        }
-                        else if (humanReadable)
-                        {
-                            FileInfo fileInfo = new FileInfo(entry.FullName);
-                            Console.WriteLine("{0}└───{1} ({2})", indent, entry.Name, HumanReadable(fileInfo.Length));
-                        }
-                        else
-                        {
-                            Console.WriteLine("{0}└───{1}", indent, entry.Name);
-                        }
-                    }
+                        PrintLastEntry(entry, indent);
                 }
                 else
                 {
                     if (entry != entries.Last())
                     {
-                        Console.WriteLine("{0}├───{1}", indent, entry.Name);
-                        PrintTree(entry.FullName, maxDepth, size, humanReadable, reverse, sort, String.Concat(indent, "|   "), depth + 1);
+                        PrintEntry(entry, indent);
+                        PrintTree(entry.FullName, String.Concat(indent, "|   "), depth + 1);
                     }
                     else
                     {
-                        Console.WriteLine("{0}└───{1}", indent, entry.Name);
-                        PrintTree(entry.FullName, maxDepth, size, humanReadable, reverse, sort, String.Concat(indent, "    "), depth + 1);
+                        PrintLastEntry(entry, indent);
+                        PrintTree(entry.FullName, String.Concat(indent, "    "), depth + 1);
                     }
                 }
             }
         }
-        public static IOrderedEnumerable<FileSystemInfo> getFolderContent(string folder, string sort, bool reverse)
+        private void PrintEntry(FileSystemInfo entry, string indent)
+        {
+            if ((this.HumanReadable) && (!IsDirectory(entry)))
+            {
+                FileInfo fileInfo = new FileInfo(entry.FullName);
+                Console.WriteLine("{0}├───{1} ({2})", indent, entry.Name, ShowHumanReadable(fileInfo.Length));
+            }
+            else if ((this.ShowSize) && (!IsDirectory(entry)))
+            {
+                FileInfo fileInfo = new FileInfo(entry.FullName);
+                Console.WriteLine("{0}├───{1} ({2})", indent, entry.Name, fileInfo.Length);
+            }
+            else
+            {
+                Console.WriteLine("{0}├───{1}", indent, entry.Name);
+            }
+        }
+        private void PrintLastEntry(FileSystemInfo entry, string indent)
+        {
+            if (this.HumanReadable)
+            {
+                FileInfo fileInfo = new FileInfo(entry.FullName);
+                Console.WriteLine("{0}└───{1} ({2})", indent, entry.Name, ShowHumanReadable(fileInfo.Length));
+            }
+            else if (this.ShowSize)
+            {
+                FileInfo fileInfo = new FileInfo(entry.FullName);
+                Console.WriteLine("{0}└───{1} ({2} B)", indent, entry.Name, fileInfo.Length);
+            }
+            else
+            {
+                Console.WriteLine("{0}└───{1}", indent, entry.Name);
+            }
+        }
+        private IOrderedEnumerable<FileSystemInfo> getFolderContent(string folder)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folder);
             FileSystemInfo[] entries = directoryInfo.GetFileSystemInfos();
-            if (reverse)
+            if (!this.Reverse)
             {
-                switch (sort)
+                switch (this.Sorting)
                 {
                     case "name":
                         return entries.OrderBy(x => x.Name);
@@ -86,7 +103,7 @@ namespace tree1
             }
             else
             {
-                switch (sort)
+                switch (this.Sorting)
                 {
                     case "name":
                         return entries.OrderByDescending(x => x.Name);
@@ -98,7 +115,7 @@ namespace tree1
             }
             return null;
         }
-        public static string HumanReadable (long fileSize)
+        private string ShowHumanReadable(long fileSize)
         {
             if (fileSize == 0)
             {
@@ -112,6 +129,17 @@ namespace tree1
                 fileSize = fileSize / 1024;
             }
             return String.Format("{0:0.##} {1}", fileSize, sizes[order]);
+        }
+        public static bool IsDirectory(FileSystemInfo entry)
+        {
+            if (entry.Attributes == FileAttributes.Directory)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
