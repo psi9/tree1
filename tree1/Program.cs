@@ -1,4 +1,5 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 
@@ -8,7 +9,7 @@ namespace tree1
     {
         static int Main(string[] args)
         {
-            var cmd = new RootCommand {
+            RootCommand cmd = new RootCommand {
                 new Option<int>(new[] { "-d", "--depth" }, "Specify the depth to look into"),
                 new Option(new[] { "-s", "--size" }, "Show size"),
                 new Option(new[] { "-h", "--human-readable"}, "Show size in human readable format"),
@@ -21,8 +22,15 @@ namespace tree1
         static void Handle(IConsole console, bool size, bool humanReadable, bool reverse, string sort = "name", int depth = int.MaxValue)
         {
             string folder = Directory.GetCurrentDirectory();
-            Tree tree = new Tree(depth, size, humanReadable, reverse, sort);
-            tree.PrintTree(folder);
+            try
+            {
+                Tree tree = new Tree(depth, size, humanReadable, reverse, sort);
+                tree.PrintTree(folder);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("error");
+            }
         }
     }
 }

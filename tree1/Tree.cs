@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -26,28 +27,19 @@ namespace tree1
             {
                 return;
             }
-            IOrderedEnumerable<FileSystemInfo> entries = GetFolderContent(folder);
+            List<FileSystemInfo> entries = GetFolderContent(folder);
             foreach (FileSystemInfo entry in entries)
             {
-                if (!IsDirectory(entry))
-                {
-                    if (entry != entries.Last())
-                        PrintEntry(entry, indent);
-                    else
-                        PrintLastEntry(entry, indent);
-                }
+                if (entry != entries.Last())
+                    PrintEntry(entry, indent);
                 else
+                    PrintLastEntry(entry, indent);
+                if (IsDirectory(entry))
                 {
                     if (entry != entries.Last())
-                    {
-                        PrintEntry(entry, indent);
                         PrintTree(entry.FullName, String.Concat(indent, "|   "), depth + 1);
-                    }
                     else
-                    {
-                        PrintLastEntry(entry, indent);
                         PrintTree(entry.FullName, String.Concat(indent, "    "), depth + 1);
-                    }
                 }
             }
         }
@@ -85,7 +77,7 @@ namespace tree1
                 Console.WriteLine("{0}└───{1}", indent, entry.Name);
             }
         }
-        private IOrderedEnumerable<FileSystemInfo> GetFolderContent(string folder)
+        private List<FileSystemInfo> GetFolderContent(string folder)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folder);
             FileSystemInfo[] entries = directoryInfo.GetFileSystemInfos();
@@ -94,11 +86,15 @@ namespace tree1
                 switch (this.Sorting)
                 {
                     case "name":
-                        return entries.OrderBy(entry => entry.Name);
+                        return entries.OrderBy(entry => entry.Name).ToList();
                     case "creation":
-                        return entries.OrderBy(entry => entry.CreationTime);
+                        return entries.OrderBy(entry => entry.CreationTime).ToList();
                     case "change":
-                        return entries.OrderBy(entry => entry.LastWriteTime);
+                        return entries.OrderBy(entry => entry.LastWriteTime).ToList();
+                    case "size":
+                        List<FileSystemInfo> sortedFiles = directoryInfo.GetFiles().OrderBy(entry => entry.Length).Cast<FileSystemInfo>().ToList();
+                        List<FileSystemInfo> directories = directoryInfo.GetDirectories().OrderBy(entry => entry.Name).Cast<FileSystemInfo>().ToList();
+                        return sortedFiles.Concat(directories).ToList();
                 }
             }
             else
@@ -106,11 +102,15 @@ namespace tree1
                 switch (this.Sorting)
                 {
                     case "name":
-                        return entries.OrderByDescending(entry => entry.Name);
+                        return entries.OrderByDescending(entry => entry.Name).ToList();
                     case "creation":
-                        return entries.OrderByDescending(entry => entry.CreationTime);
+                        return entries.OrderByDescending(entry => entry.CreationTime).ToList();
                     case "change":
-                        return entries.OrderByDescending(entry => entry.LastWriteTime);
+                        return entries.OrderByDescending(entry => entry.LastWriteTime).ToList();
+                    case "size":
+                        List<FileSystemInfo> sortedFiles = directoryInfo.GetFiles().OrderByDescending(entry => entry.Length).Cast<FileSystemInfo>().ToList();
+                        List<FileSystemInfo> directories = directoryInfo.GetDirectories().OrderByDescending(entry => entry.Name).Cast<FileSystemInfo>().ToList();
+                        return sortedFiles.Concat(directories).ToList();
                 }
             }
             return null;
