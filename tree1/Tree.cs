@@ -132,14 +132,7 @@ namespace tree1
         }
         private bool IsDirectory(FileSystemInfo entry)
         {
-            if (entry.Attributes == FileAttributes.Directory)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return entry.Attributes == FileAttributes.Directory;
         }
     }
 }
