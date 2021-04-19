@@ -10,11 +10,11 @@ namespace tree1
         static int Main(string[] args)
         {
             RootCommand cmd = new RootCommand {
-                new Option<int>(new[] { "-d", "--depth" }, "Specify the depth to look into"),
-                new Option(new[] { "-s", "--size" }, "Show size"),
-                new Option(new[] { "-h", "--human-readable"}, "Show size in human readable format"),
+                new Option<int>(new string[] { "-d", "--depth" }, "Specify the depth to look into"),
+                new Option(new string[] { "-s", "--size" }, "Show size"),
+                new Option(new string[] { "-h", "--human-readable"}, "Show size in human readable format"),
                 new Option<string> ("--sort", "Sort by size, creation date, last change date, name. Possible values: \"name\" (default), \"creation\", \"change\", \"size\""),
-                new Option(new[] { "-r", "--reverse"}, "Reverse order")
+                new Option(new string[] { "-r", "--reverse"}, "Reverse order")
             };
             cmd.Handler = CommandHandler.Create<IConsole, bool, bool, bool, string, int>(Handle);
             return cmd.Invoke(args);
@@ -29,7 +29,7 @@ namespace tree1
             }
             catch (Exception)
             {
-                Console.WriteLine("error");
+                Console.WriteLine("Exception");
             }
         }
     }
