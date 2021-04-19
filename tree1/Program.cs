@@ -20,8 +20,9 @@ namespace tree1
         }
         static void Handle(IConsole console, bool size, bool humanReadable, bool reverse, string sort = "name", int depth = int.MaxValue)
         {
-            string folder = "C:\\Users\\user\\Documents\\my games";
-            Tree.PrintTree(folder, depth, size, humanReadable, reverse, sort);
+            string folder = "C:\\1111";
+            Tree tree = new Tree(depth, size, humanReadable, reverse, sort);
+            tree.PrintTree(folder);
         }
     }
 }

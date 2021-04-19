@@ -1,8 +1,7 @@
 {
   "profiles": {
     "tree1": {
-      "commandName": "Project",
-      "commandLineArgs": "-d 2 -s"
+      "commandName": "Project"
     }
   }
 }
